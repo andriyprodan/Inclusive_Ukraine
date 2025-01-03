@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./inclusive_ukraine_back
+    container_name: inclusive-ukraine-backend
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./inclusive_ukraine_back:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./inclusive_ukraine_front
+    container_name: inclusive-ukraine-frontend
+    volumes:
+      - ./inclusive_ukraine_front:/app
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+
+  db:
+    image: postgres:15
+    container_name: inclusive-ukraine-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: my_secure_password
+      POSTGRES_DB: inclusive_ukraine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
